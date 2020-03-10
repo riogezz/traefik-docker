@@ -1,0 +1,52 @@
+version: '3.5'
+
+services:
+  traefik:
+    image: traefik:${VERSION}
+    container_name: traefik
+    restart: ${RESTART}
+    command: 
+      - --api.insecure=true 
+      - --providers.docker=true 
+      - --providers.docker.exposedbydefault=false 
+      - --log.level=${LOG}
+      - --entrypoints.http.address=:80 
+      - --entrypoints.https.address=:443
+      - --certificatesresolvers.${PROVIDER}.acme.dnschallenge=true
+      - --certificatesresolvers.${PROVIDER}.acme.dnschallenge.provider=${PROVIDER}
+      - --certificatesresolvers.${PROVIDER}.acme.dnschallenge.delayBeforeCheck=0
+      - --certificatesresolvers.${PROVIDER}.acme.dnschallenge.resolvers=${RESOLVERS}
+      - --certificatesresolvers.${PROVIDER}.acme.email=${EMAIL}
+      - --certificatesresolvers.${PROVIDER}.acme.storage=/certs/acme.json
+    environment: 
+      - TZ
+      - AWS_ACCESS_KEY_ID
+      - AWS_REGION
+      - AWS_SECRET_ACCESS_KEY
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - certs:/certs
+
+  whoami:
+    image: containous/whoami
+    container_name: whoami
+    restart: ${RESTART}
+    labels:
+      - "traefik.enable=true"
+      # default route over https
+      - "traefik.http.routers.whoami.rule=Host(`whoami.domain.tld`)"
+      - "traefik.http.routers.whoami.entrypoints=https"
+      - "traefik.http.routers.whoami.tls.certresolver=${PROVIDER}"
+      # HTTP to HTTPS
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.routers.whoami-redirs.rule=hostregexp(`{host:.+}`)"
+      - "traefik.http.routers.whoami-redirs.entrypoints=http"
+      - "traefik.http.routers.whoami-redirs.middlewares=redirect-to-https"
+
+volumes:
+  certs:
+    driver: local
