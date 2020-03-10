@@ -19,6 +19,7 @@ ___
 `LOG`| INFO| traefik minimum logging |
 |- __*ACME DNS-01 Challenge*__|
 |`PROVIDER`|route53|check [provider list](https://docs.traefik.io/https/acme/#providers) |
+|`RESOLVER`|1.1.1.1:53|public DNS server to be used for acme TXT fields checks
 |`EMAIL`|xyz@domain.ltd|your email |
 |- __*ACME AWS Route53 example*__|
 |`AWS_ACCESS_KEY_ID`|ABCXYZ|IAM username |
@@ -46,7 +47,7 @@ _docker-compose.yml_ conatins a _whoami_ test instance with http-to-https redire
       - "traefik.http.routers.whoami-redirs.middlewares=redirect-to-https"
 
 ```
-sections explanation:  
+#### sections explanation:  
 
 - enable traefik configuration on this container
 ```

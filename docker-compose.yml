@@ -15,7 +15,7 @@ services:
       - --certificatesresolvers.${PROVIDER}.acme.dnschallenge=true
       - --certificatesresolvers.${PROVIDER}.acme.dnschallenge.provider=${PROVIDER}
       - --certificatesresolvers.${PROVIDER}.acme.dnschallenge.delayBeforeCheck=0
-      - --certificatesresolvers.${PROVIDER}.acme.dnschallenge.resolvers=${RESOLVERS}
+      - --certificatesresolvers.${PROVIDER}.acme.dnschallenge.resolvers=${RESOLVER}
       - --certificatesresolvers.${PROVIDER}.acme.email=${EMAIL}
       - --certificatesresolvers.${PROVIDER}.acme.storage=/certs/acme.json
     environment: 
